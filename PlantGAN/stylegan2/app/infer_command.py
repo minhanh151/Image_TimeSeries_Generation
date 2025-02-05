@@ -10,35 +10,14 @@ BATCH_SIZE = 4
 NUM_ITER = 212
 SAVE_FOLDER = "/home/mia/Downloads/GitHub/PlantGAN/results/gen_stable_diffusion_ckpt2500_mseloss"
 
+def load_gan(path='/workspace/PlantGAN/stylegan2/plantvillage/00005-PlantVillage-cond-auto4/network-snapshot-023788.pkl', device):
+    #load all the model
+    with dnnlib.util.open_url(path) as f:
+        stylegan = legacy.load_network_pkl(f)['G_ema'].to(device) # type: ignore
+    return stylegan
+
 def inference(model, folder_save=SAVE_FOLDER, n_infer_steps=25, atten_scale=0.8, guidance_scale=7.5, num_sample=10):
-    # load pipeline
-    pipeline = DiffusionPipeline.from_pretrained(
-        "runwayml/stable-diffusion-v1-5", torch_dtype=torch.float16, 
-        use_safetensors=True, safety_checker=None
-    )
-    pipeline.load_lora_weights(model, weight_name="pytorch_lora_weights.safetensors", adapter_name="plant")
-
-    # load to distributed state
-    pipeline.to("cuda")
-
-    prompts = [
-        'bell pepper bacterial leaf spot with small dark brown water-soaked lesions',
-        'a healthy bell pepper leaf',
-        'potato early leaf blight with small dark brown spots that have concentric rings',
-        'potato late leaf blight featuring irregular dark spots and lighter green halos',
-        'a healthy potato leaf with a lush green appearance and no visible signs of disease',
-        'tomato leaf showing symptoms of bacterial leaf spot with small dark brown lesions that have yellow halos',
-        'tomato leaf showing symptoms of early blight with dark brown spots that have concentric rings and surrounding yellow halos',
-        'tomato late leaf blight with large irregularly shaped dark brown to black lesions pale green or yellowish tissue',
-        'tomato leaf mold with yellow blotches and greyish-brown mould',
-        'tomato leaf septoria spot with numerous small circular dark brown lesions that have grayish centers and surrounded by yellow halos',
-        'tomato leaf two-spot spider mites with visible stippling tiny yellow or white specks and a mottled appearance due to mite feeding',
-        'tomato leaf Target Spot with small circular to oval dark brown to black spots',
-        'tomato Yellow Leaf Curl Virus with pronounced leaf curling crinkling and a yellowing of the leaf edges',
-        'tomato leaf Mosaic Virus with mottled patterns of light and dark green uneven leaf coloring and a general mosaic-like appearance',
-        'healthy tomato leaf with a vibrant green color smooth texture showing strong well-defined veins and overall vitalit',
-    ]
-    prompts = ['detailed, real ' + prompt for prompt in prompts]
+    G = load_gan(model, device='cuda')
     
     os.makedirs(folder_save, exist_ok=True)
     for ii in range(0, num_sample, BATCH_SIZE):
