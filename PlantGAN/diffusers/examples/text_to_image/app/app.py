@@ -37,16 +37,19 @@ async def main(
             zip_ref.extractall(extracted_dir)
         
         # Train model
+        print("training model")
         train(dataset_path=f"{tmp_dir}/extracted",
               steps=steps,
               outdir=f"{tmp_dir}/model")
         
         # Generate data
+        print("generating data")
         inference(model=f"{tmp_dir}/model", 
                   folder_save=f"{tmp_dir}/output", 
                   n_infer_steps=n_infer_steps, 
                   atten_scale=atten_scale, 
-                  guidance_scale=guidance_scale)
+                  guidance_scale=guidance_scale,
+                  num_sample=1)
         
         
         # Zip results

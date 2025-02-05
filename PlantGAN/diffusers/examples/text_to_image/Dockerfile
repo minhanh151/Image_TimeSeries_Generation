@@ -17,5 +17,6 @@ COPY app ./app
 # Environment variables
 ENV PYTHONPATH=/app:/app/app
 ENV HF_HOME=/app/huggingface_cache
+ENV MODEL_TYPE=sd-lora
 
-CMD ["uvicorn", "app.app:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
