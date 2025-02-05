@@ -53,8 +53,9 @@ async def main(
         
         
         # Zip results
-        output_zip = f"{tmp_dir}/syntheticdata.zip"
+        output_zip = f"{tmp_dir}/output.zip"
         with zipfile.ZipFile(output_zip, "w") as zipf:
-            zipf.write(f"{tmp_dir}/output")
+            for idx, img_path in enumerate(output_images):
+                zipf.write(img_path, arcname=f"result_{idx}.png")
 
         return FileResponse(output_zip, filename="syntheticdata.zip")
