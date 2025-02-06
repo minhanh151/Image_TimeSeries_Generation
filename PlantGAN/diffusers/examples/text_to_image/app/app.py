@@ -6,6 +6,7 @@ import zipfile
 import shutil
 from train import train
 from infer import inference
+import glob
 # from infer import generate
 
 app = FastAPI()
@@ -51,11 +52,10 @@ async def main(
                   guidance_scale=guidance_scale,
                   num_sample=1)
         
-        
-        # Zip results
+        output_images = glob.glob(f"{tmp_dir}/output/*.png")
         output_zip = f"{tmp_dir}/output.zip"
         with zipfile.ZipFile(output_zip, "w") as zipf:
             for idx, img_path in enumerate(output_images):
                 zipf.write(img_path, arcname=f"result_{idx}.png")
 
-        return FileResponse(output_zip, filename="syntheticdata.zip")
+        return FileResponse(output_zip, filename="output.zip")

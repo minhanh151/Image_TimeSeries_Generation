@@ -8,12 +8,18 @@
 
 FROM nvcr.io/nvidia/pytorch:20.12-py3
 
+
+WORKDIR /app
+
+
+
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-RUN pip install imageio-ffmpeg==0.4.3 pyspng==0.1.0  https://github.com/podgorskiy/dnnlib/releases/download/0.0.1/dnnlib-0.0.1-py3-none-any.whl
-RUN pip install python-multipart fastapi>=0.95.0 uvicorn>=0.21.0
-# WORKDIR /workspace
+RUN pip install imageio-ffmpeg==0.4.3 pillow 
+RUN pip install python-multipart fastapi>=0.95.0 uvicorn>=0.21.0 
+RUN pip install https://github.com/podgorskiy/dnnlib/releases/download/0.0.1/dnnlib-0.0.1-py3-none-any.whl
+
 
 # Unset TORCH_CUDA_ARCH_LIST and exec.  This makes pytorch run-time
 # extension builds significantly faster as we only compile for the
@@ -22,7 +28,7 @@ RUN (printf '#!/bin/bash\nunset TORCH_CUDA_ARCH_LIST\nexec \"$@\"\n' >> /entry.s
 # ENTRYPOINT ["/entry.sh"]
 
 # Copy code
-COPY . ./app
+COPY . .
 
 # Environment variables
 ENV PYTHONPATH=/app:/app/app

@@ -2,7 +2,7 @@ import subprocess
 import sys 
 sys.path.append("/wor")
 def train(dataset_path: str, outdir: str, steps: int,
-          pretrained_path : str ="runwayml/stable-diffusion-v1-5",
+          pretrained_path : str ="stable-diffusion-v1-5/stable-diffusion-v1-5",
           ):
     command = [
         "accelerate", "launch",

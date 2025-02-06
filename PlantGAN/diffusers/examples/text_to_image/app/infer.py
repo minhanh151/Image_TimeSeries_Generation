@@ -41,6 +41,7 @@ def inference(model, folder_save=SAVE_FOLDER, n_infer_steps=25, atten_scale=0.8,
     prompts = ['detailed, real ' + prompt for prompt in prompts]
     
     os.makedirs(folder_save, exist_ok=True)
+    results = []
     for ii in range(0, num_sample, BATCH_SIZE):
         num_images_per_prompt = min(BATCH_SIZE, num_sample - ii)
         # for prompt_id, prompt_ii in enumerate(prompts):
@@ -53,9 +54,12 @@ def inference(model, folder_save=SAVE_FOLDER, n_infer_steps=25, atten_scale=0.8,
                             negative_prompt=['anime, do not have background'] * num_images_per_prompt).images
         for j in range(len(result)):
             result[j].save(f"{folder_save}/result_{ii + j}.png")
+        # results.extend(result)
+
         del result
         torch.cuda.empty_cache()
         gc.collect()
+    # return results
 
 def remove_black_image(folder):
     for img in os.listdir(folder):

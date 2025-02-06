@@ -2,13 +2,13 @@ import subprocess
 import sys 
 sys.path.append("/wor")
 def train(dataset_path: str, outdir: str, steps: int,
-          pretrained_path : str ="runwayml/stable-diffusion-v1-5",
           ):
     command = [
         "python", "/app/train.py",
-        "data", dataset_path,
-        "outdir", outdir,
-         "cond", "1"
+        "--data", dataset_path,
+        "--outdir", outdir,
+        "--cfg", "auto",
+         "--cond", "1"
     ]
     # Run the .sh file
     result = subprocess.run(command, capture_output=True, text=True)
@@ -25,5 +25,5 @@ def train(dataset_path: str, outdir: str, steps: int,
 
 
 if __name__ == "__main__":
-    train(dataset_path="/workspace/src/PlantGAN/datasets/test",
+    train(dataset_path="/workspace/src/dataset",
           outdir="plantVillage_text2image", steps=1)
