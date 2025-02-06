@@ -1,0 +1,6 @@
+docker build -t diffusers
+docker run -p 8000:80 --gpus all diffusers
+
+
+cd /home/vmuser/Image_TimeSeries_Generation/PlantGAN/datasets
+curl -X POST "http://localhost:8000/fine-tune-and-generate"   -F "dataset=@dataset.zip"  -F "model_type=sd-lora" -F "steps=1"
