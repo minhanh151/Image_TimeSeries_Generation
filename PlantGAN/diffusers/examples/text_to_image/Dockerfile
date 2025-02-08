@@ -12,7 +12,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy code
-COPY app ./app
+COPY . .
 
 # Environment variables
 ENV PYTHONPATH=/app:/app/app

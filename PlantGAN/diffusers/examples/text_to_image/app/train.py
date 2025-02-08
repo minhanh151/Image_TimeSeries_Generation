@@ -6,6 +6,7 @@ def train(dataset_path: str, outdir: str, steps: int,
           ):
     command = [
         "accelerate", "launch",
+        "--config_file", "configs/accelerate.yaml"
         "--main_process_port", "18000",
         "/app/app/train_text_to_image_lora.py",
         "--pretrained_model_name_or_path", pretrained_path,
