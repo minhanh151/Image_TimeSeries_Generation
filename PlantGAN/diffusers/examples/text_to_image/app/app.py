@@ -34,7 +34,7 @@ async def main(
         raise HTTPException(400, f"Model type {model_type} not supported by this container")
     
     # Process dataset
-    tmp_dir = tempfile.TemporaryDirectory()
+    tmp_dir = tempfile.mkdtemp()
     # Save uploaded file
     dataset_path = f"{tmp_dir}/dataset.zip"
     with open(dataset_path, "wb") as f:

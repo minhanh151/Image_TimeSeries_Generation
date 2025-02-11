@@ -1,5 +1,5 @@
 # Dockerfile
-FROM nvcr.io/nvidia/pytorch:25.01-py3
+FROM pytorch/pytorch:1.13.1-cuda11.6-cudnn8-devel
 
 WORKDIR /app
 

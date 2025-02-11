@@ -1,3 +1,7 @@
 PlantGAN/datasets
 *log*
 PlantGAN/diffusers/examples/text_to_image/app/plantVillage_text2image
+PlantGAN/diffusers/examples/text_to_image/huggingface_cache/
+output.zip
+result_0.png 
+test.py
