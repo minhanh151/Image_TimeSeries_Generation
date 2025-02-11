@@ -35,7 +35,7 @@ from metrics.visualization_metrics import visualization
 
 
 
-def main (args):  
+def main(args, predict_score=True):  
   root_dir = "{}/{}".format(args.log_dir, args.data_name)
   
   logger = init_logger(root_dir)
@@ -88,7 +88,7 @@ def main (args):
      max_sequence_len=args.seq_len,
      sample_len=args.sample_len,
      batch_size=args.batch_size,
-     epochs=10
+     epochs=args.epochs
     )
     dgan = DGAN(config)    
   elif args.model == 'ttsgan':
@@ -119,7 +119,7 @@ def main (args):
     generated_data = timegan(dataset, params)
   elif args.model == 'doppelgan':
     dgan.train_numpy(dataset)
-    dgan.save(f'{root_dir}/model.pth')
+    # dgan.save(f'{root_dir}/model.pth')
     _, generated_data = dgan.generate_numpy(len(ori_data))
     generated_data = [np.array(data) for data in generated_data]
   elif args.model == 'ttsgan':
@@ -130,35 +130,38 @@ def main (args):
   with open("{}/hidden".format(root_dir), "wb") as f:
       pickle.dump(h, f)
   '''
-
+  np.save(f'{args.outdir}/data.npy', generated_data, allow_pickle=True)
+  
   print('Finish Synthetic Data Generation')
-  
-  ## Performance metrics   
-  # Output initialization
-  metric_results = dict()
-  
-  # 1. Discriminative Score
-  discriminative_score = list()
-  for _ in range(args.metric_iteration):
-    temp_disc = discriminative_score_metrics(ori_data, generated_data)
-    discriminative_score.append(temp_disc)
-      
-  metric_results['discriminative'] = np.mean(discriminative_score)
-      
-  # 2. Predictive score
-  predictive_score = list()
-  for tt in range(args.metric_iteration):
-    temp_pred = predictive_score_metrics(ori_data, generated_data)
-    predictive_score.append(temp_pred)   
-      
-  metric_results['predictive'] = np.mean(predictive_score)     
-          
-  # 3. Visualization (PCA and tSNE)
-  visualization(ori_data, generated_data, 'pca')
-  visualization(ori_data, generated_data, 'tsne')
-  
-  ## Print discriminative and predictive scores
-  print(metric_results)
+  if predict_score:
+    ## Performance metrics   
+    # Output initialization
+    metric_results = dict()
+    
+    # 1. Discriminative Score
+    discriminative_score = list()
+    for _ in range(args.metric_iteration):
+      temp_disc = discriminative_score_metrics(ori_data, generated_data)
+      discriminative_score.append(temp_disc)
+        
+    metric_results['discriminative'] = np.mean(discriminative_score)
+        
+    # 2. Predictive score
+    predictive_score = list()
+    for tt in range(args.metric_iteration):
+      temp_pred = predictive_score_metrics(ori_data, generated_data)
+      predictive_score.append(temp_pred)   
+        
+    metric_results['predictive'] = np.mean(predictive_score)     
+            
+    # 3. Visualization (PCA and tSNE)
+    visualization(ori_data, generated_data, 'pca')
+    visualization(ori_data, generated_data, 'tsne')
+    
+    ## Print discriminative and predictive scores
+    print(metric_results)
+  else:
+    metric_results = None
 
   return ori_data, generated_data, metric_results
 

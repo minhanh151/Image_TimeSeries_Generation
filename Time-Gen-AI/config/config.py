@@ -167,6 +167,11 @@ def parse_args():
       default=10,
       type=int)
     
+    
+    parser.add_argument(
+      '--outdir',
+      type=str
+    )
     opt = parser.parse_args()
     return opt
   
