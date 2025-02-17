@@ -28,6 +28,7 @@ async def main(
     steps: int = Form(3000),
     atten_scale: float = Form(0.8),
     guidance_scale: float = Form(7.5),
+    n_sample: int = Form(1),
 
 ):
     if model_type != MODEL_TYPE:
@@ -58,7 +59,7 @@ async def main(
                 n_infer_steps=n_infer_steps, 
                 atten_scale=atten_scale, 
                 guidance_scale=guidance_scale,
-                num_sample=1)
+                num_sample=n_sample)
     
     output_images = glob.glob(f"{tmp_dir}/output/*.png")
     output_zip = f"{tmp_dir}/output.zip"
