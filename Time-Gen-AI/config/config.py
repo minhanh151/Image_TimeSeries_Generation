@@ -123,7 +123,7 @@ def parse_args():
 
     # Training control
     parser.add_argument('--tts_shared_epoch', type=int, default=15, help='the number of epoch to train the shared gan at each search iteration')
-    parser.add_argument('--tts_grow_steps', nargs='+', type=int, help='the vector of a discovered architecture')
+    parser.add_argument('--tts_grow_steps', nargs='+', type=int, default = [0, 0], help='the vector of a discovered architecture')
     parser.add_argument('--tts_grow_step1', type=int, default=25, help='which iteration to grow the image size from 8 to 16')
     parser.add_argument('--tts_grow_step2', type=int, default=55, help='which iteration to grow the image size from 16 to 32')
     parser.add_argument('--tts_fade_in', type=float, default=0, help='fade in step')

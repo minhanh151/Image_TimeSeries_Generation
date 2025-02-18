@@ -4,8 +4,8 @@ from fastapi.responses import FileResponse
 import tempfile
 import zipfile
 import shutil
-from train_command import train
-from infer_command import inference
+from run_command import train
+# from infer_command import inference
 import glob
 # from infer import generate
 
@@ -24,16 +24,18 @@ async def main(
     background_tasks: BackgroundTasks,
     model_type: str = Form(...),
     dataset: UploadFile = File(...),
+    iterations: int = Form(10000),
     data_name: str = Form('stock'),
     seq_len: int = Form(24),
     epochs: int = Form(50000),
+    sample_len: int = Form(6),
     n_sample: int = Form(1),
 ):
     if model_type != MODEL_TYPE:
         raise HTTPException(400, f"Model type {model_type} not supported by this container")
     
     # Process dataset
-    tmp_dir = tempfile.TemporaryDirectory()
+    tmp_dir = tempfile.mkdtemp()
     # Save uploaded file
     dataset_path = f"{tmp_dir}/dataset.zip"
     with open(dataset_path, "wb") as f:
@@ -51,14 +53,16 @@ async def main(
           seq_len=seq_len,
           epochs=epochs,
           n_sample=n_sample,
+          iterations=iterations,
+          sample_len=sample_len,
           outdir=tmp_dir)
     
     
-# output_images = glob.glob(f"{tmp_dir}/output/*.png")
+    # output_images = glob.glob(f"{tmp_dir}/output/*.png")
     output_zip = f"{tmp_dir}/output.zip"
     with zipfile.ZipFile(output_zip, "w") as zipf:
         # for idx, img_path in enumerate(output_images):
-        zipf.write(f'{tmp_dir}/data.npy')
+        zipf.write(f'{tmp_dir}/data.npy', arcname=f"sync_data.npy")
     # remove the tmp_dir after send 
     background_tasks.add_task(remove_file, tmp_dir)
-    return FileResponse(output_zip, filename="syntheticdata.zip")
+    return FileResponse(output_zip, filename="output.zip")

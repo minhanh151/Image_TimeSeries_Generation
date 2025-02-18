@@ -1,17 +1,19 @@
 import subprocess 
 
-def train(dataset_path: str, data_name: str, seq_len: int, 
+def train(dataset_path: str, data_name: str, seq_len: int, sample_len: int,
           epochs: int, batch_size: int, outdir: str, 
           n_samples: int,
           ):
     command = [
         "python", "/app/main.py",
+        "--model", "doppelgan",
         "--data_path", dataset_path,
         "--data_name", data_name,
-        "--seq_len", seq_len,
-        "--epochs", epochs, 
-        "--batch_size", batch_size,
-        "--n_samples", n_samples,
+        "--seq_len", str(seq_len),
+        "--rts_epoch", str(epochs), 
+        "--batch_size", str(batch_size),
+        "--n_samples", str(n_samples),
+        "--sample_len", str(sample_len),
         "--outdir", outdir,
     ]
     # Run the .sh file

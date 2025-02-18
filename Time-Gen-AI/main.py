@@ -172,4 +172,4 @@ if __name__ == '__main__':
   args = parse_args() 
   
   # Calls main function  
-  ori_data, generated_data, metrics = main(args)
+  ori_data, generated_data, metrics = main(args, predict_score=False)

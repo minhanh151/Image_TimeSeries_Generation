@@ -14,12 +14,12 @@ RUN pip install fastapi>=0.95.0 uvicorn>=0.21.0 python-multipart
 RUN pip uninstall -y nvidia_cublas_cu11
 # Copy code
 COPY . .
-RUN mv /app/app_timegan /app/app
+RUN mv /app/app_ttsgan /app/app
 # RUN properties
 # Environment variables
 ENV PYTHONPATH=/app:/app/app
 ENV HF_HOME=/app/huggingface_cache
-ENV MODEL_TYPE=timegan
+ENV MODEL_TYPE=ttsgan
 
 # CMD ["/bin/bash"]
 CMD ["/usr/local/bin/uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]

@@ -5,3 +5,4 @@ PlantGAN/diffusers/examples/text_to_image/huggingface_cache/
 output.zip
 result_0.png 
 test.py
+*.zip

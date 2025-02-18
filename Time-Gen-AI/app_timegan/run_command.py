@@ -7,15 +7,16 @@ def train(dataset_path: str, data_name: str, seq_len: int,
           ):
     command = [
         "python", "/app/main.py",
+        "--model", "timegan",
         "--data_path", dataset_path,
         "--data_name", data_name,
-        "--seq_len", seq_len,
+        "--seq_len", str(seq_len),
         "--timegan_module", module,
-        "--timegan_hidden_dim", hidden_dim,
-        "--timegan_num_layer", num_layer,
-        "--iteration", iteration, 
-        "--batch_size", batch_size,
-        "--n_samples", n_samples,
+        "--timegan_hidden_dim", str(hidden_dim),
+        "--timegan_num_layer", str(num_layer),
+        "--iteration", str(iteration), 
+        "--batch_size", str(batch_size),
+        "--n_samples", str(n_samples),
         "--outdir", outdir,
     ]
     # Run the .sh file

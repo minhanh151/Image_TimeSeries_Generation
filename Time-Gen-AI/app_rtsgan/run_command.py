@@ -1,15 +1,18 @@
 import subprocess 
 
-def train(dataset_path: str, data_name: str, seq_len: int, 
-          epochs: int, outdir: str, n_sample: int
+def train(dataset_path: str, data_name: str, seq_len: int, sample_len: int,
+          epochs: int, outdir: str, n_sample: int, iterations: int,
           ):
     command = [
         "python", "/app/main.py",
+         "--model", "rtsgan",
         "--data_path", dataset_path,
         "--data_name", data_name,
-        "--seq_len", seq_len,
-        "--rts_epochs", epochs,
-        "--n_smaples", n_sample,
+        "--seq_len", str(seq_len),
+        "--rts_epochs", str(epochs),
+        "--n_samples", str(n_sample),
+        "--iteration", str(iterations),
+        "--sample_len", str(sample_len),
         "--outdir", outdir,
     ]
     # Run the .sh file

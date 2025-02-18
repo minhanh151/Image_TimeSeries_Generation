@@ -8,3 +8,4 @@ metrics_old
 *__pycache**
 logs
 stock_result
+*.zip

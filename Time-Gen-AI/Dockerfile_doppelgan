@@ -1,5 +1,5 @@
 # Dockerfile
-FROM uvarc/tensorflow:2.10.0
+FROM python:3.9
 
 WORKDIR /app
 
@@ -11,15 +11,16 @@ RUN apt-get update && \
 COPY requirements.txt .
 RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN pip install fastapi>=0.95.0 uvicorn>=0.21.0 python-multipart
-RUN pip uninstall -y nvidia_cublas_cu11
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+# RUN pip uninstall -y nvidia_cublas_cu11
 # Copy code
 COPY . .
-RUN mv /app/app_timegan /app/app
+RUN mv /app/app_doppelgan /app/app
 # RUN properties
 # Environment variables
 ENV PYTHONPATH=/app:/app/app
 ENV HF_HOME=/app/huggingface_cache
-ENV MODEL_TYPE=timegan
+ENV MODEL_TYPE=doppelgan
 
 # CMD ["/bin/bash"]
 CMD ["/usr/local/bin/uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
