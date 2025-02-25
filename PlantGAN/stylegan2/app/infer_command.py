@@ -25,7 +25,7 @@ def load_gan(path='/workspace/PlantGAN/stylegan2/plantvillage/00005-PlantVillage
 
 def inference(model, folder_save=SAVE_FOLDER, num_sample=10):
     G = load_gan(model)
-    results = []
+    
     os.makedirs(folder_save, exist_ok=True)
     for ii in range(0, num_sample, BATCH_SIZE):
         num_images_per_iter = min(BATCH_SIZE, num_sample - ii)
