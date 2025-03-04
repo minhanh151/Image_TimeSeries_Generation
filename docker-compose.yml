@@ -2,9 +2,10 @@
 version: '3.8'
 
 services:
-  cgan_api:
+  # gen image
+  sb_lora_api:
     build:
-      context: ./PlantGAN/cgan
+      context: ./PlantGAN/diffusers/examples/text_to_image
     environment:
       - GPU_ID=0  # Gán GPU 0 cho GAN
     deploy:
@@ -15,12 +16,42 @@ services:
               device_ids: ['0']
               capabilities: [gpu]
     ports:
-      - "8005:80"
+      - "8000:80"
+  
+  stylegan2_api:
+    build:
+      context: ./PlantGAN/stylegan2
+    environment:
+      - GPU_ID=1  # Gán GPU 0 cho GAN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['1']
+              capabilities: [gpu]
+    ports:
+      - "8001:80"
 
-  doppel_api:
+  cgan_api:
+    build:
+      context: ./PlantGAN/cgan
+    environment:
+      - GPU_ID=2  # Gán GPU 0 cho GAN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['2']
+              capabilities: [gpu]
+    ports:
+      - "8002:80"
+
+  timegan_api:
     build:
       context: ./Time-Gen-AI
-      dockerfile: Dockerfile_doppelgan
+      dockerfile: Dockerfile_timegan
     environment:
       - GPU_ID=1  # Gán GPU 1 cho GPT
     deploy:
@@ -29,6 +60,56 @@ services:
           devices:
             - driver: nvidia
               device_ids: ['1']
+              capabilities: [gpu]
+    ports:
+      - "8003:80"
+
+  rtsgan_api:
+    build:
+      context: ./Time-Gen-AI
+      dockerfile: Dockerfile_rtsgan
+    environment:
+      - GPU_ID=2  # Gán GPU 1 cho GPT
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['2']
+              capabilities: [gpu]
+    ports:
+      - "8004:80"
+
+
+  doppel_api:
+    build:
+      context: ./Time-Gen-AI
+      dockerfile: Dockerfile_doppelgan
+    environment:
+      - GPU_ID=3  # Gán GPU 1 cho GPT
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['3']
+              capabilities: [gpu]
+    ports:
+      - "8005:80"
+
+
+  ttsgan_api:
+    build:
+      context: ./Time-Gen-AI
+      dockerfile: Dockerfile_ttsgan
+    environment:
+      - GPU_ID=3  # Gán GPU 1 cho GPT
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['3']
               capabilities: [gpu]
     ports:
       - "8006:80"
