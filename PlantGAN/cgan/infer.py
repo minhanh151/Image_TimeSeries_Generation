@@ -21,7 +21,7 @@ def GenOptions():
     parser.add_argument('--batch', type=int, default=225, help='batch size during generation')
     parser.add_argument('--path-save', type=str, default='results', help='path save inference image')
     parser.add_argument('--niter', type=int, default=45, help='number of iteration generated')
-    parser.add_argument('--type', type=str, default='vae', help='type of model to infer')
+    parser.add_argument('--type', type=str, default='cgan', help='type of model to infer')
 
     return parser 
 

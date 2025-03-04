@@ -7,6 +7,7 @@ def train(dataset_path: str, outdir: str, epochs: int,
     command = [
         "python", "/app/train.py",
         "--dataroot", dataset_path,
+        "--model_mode", "2",
         "--name", "cgan",
         "--model", "cgan",
         "--epoch_count", str(epochs),

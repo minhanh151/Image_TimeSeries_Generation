@@ -14,7 +14,7 @@ MODEL_TYPE = os.getenv("MODEL_TYPE", "default")
 
 def remove_file(file_path: str):
     try:
-        os.remove(file_path)
+        os.rmdir(file_path)
     except Exception as e:
         print(f"Error removing file: {e}")
 

@@ -14,7 +14,7 @@ MODEL_TYPE = os.getenv("MODEL_TYPE", "default")
 
 def remove_file(file_path: str):
     try:
-        os.remove(file_path)
+        shutil.rmtree(file_path)
     except Exception as e:
         print(f"Error removing file: {e}")
 
@@ -58,18 +58,18 @@ async def main(
             input_size=input_size)
     
     # Generate data
-    inference(weight=f"{tmp_dir}/model", 
+    inference(model=f"{tmp_dir}/model/cgan{epochs - 1}_G.pkl",  
                 outdir=f"{tmp_dir}/output",
                 zdim_in=zdim_in,
                 batch=batch_infer,
                 niter=n_iter,
                 input_size=input_size,
-                classes=class_num,
+                class_num=class_num,
                 )
     
 
     # Zip results
-    output_images = glob.glob(f"{tmp_dir}/output/*.png")
+    output_images = glob.glob(f"{tmp_dir}/output/gen_cgan/*.png")
     output_zip = f"{tmp_dir}/output.zip"
     with zipfile.ZipFile(output_zip, "w") as zipf:
         for idx, img_path in enumerate(output_images):

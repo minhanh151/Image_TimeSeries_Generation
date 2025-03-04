@@ -1,15 +1,15 @@
 import subprocess 
 
-def infer(model: str, outdir: str, niter: int, batch: int,
+def inference(model: str, outdir: str, niter: int, batch: int,
           zdim_in: int, input_size: int, class_num: int,
           ):
     command = [
         "python", "/app/infer.py",
-        "--weight", model,
-        "--zdim_in", str(zdim_in),
+        "--weight", str(model),
+        "--zdim-in", str(zdim_in),
         "--batch", str(batch),
         "--niter", str(niter),
-        "--input_size", str(input_size),
+        "--input-size", str(input_size),
         "--classes", str(class_num),
         "--path-save", outdir
     ]
