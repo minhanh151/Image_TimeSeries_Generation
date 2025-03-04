@@ -1,0 +1,34 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  cgan_api:
+    build:
+      context: ./PlantGAN/cgan
+    environment:
+      - GPU_ID=0  # Gán GPU 0 cho GAN
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['0']
+              capabilities: [gpu]
+    ports:
+      - "8005:80"
+
+  doppel_api:
+    build:
+      context: ./Time-Gen-AI
+      dockerfile: Dockerfile_doppelgan
+    environment:
+      - GPU_ID=1  # Gán GPU 1 cho GPT
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ['1']
+              capabilities: [gpu]
+    ports:
+      - "8006:80"
