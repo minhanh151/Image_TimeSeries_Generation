@@ -29,7 +29,9 @@ async def main(
     atten_scale: float = Form(0.8),
     guidance_scale: float = Form(7.5),
     n_sample: int = Form(1),
-
+    add_perceptual_loss: bool = Form(False),
+    add_experiment_loss_1: bool = Form(False),
+    add_experiment_loss_2: bool = Form(False),
 ):
     if model_type != MODEL_TYPE:
         raise HTTPException(400, f"Model type {model_type} not supported by this container")
@@ -50,7 +52,10 @@ async def main(
     print("training model")
     train(dataset_path=f"{tmp_dir}/extracted",
             steps=steps,
-            outdir=f"{tmp_dir}/model")
+            outdir=f"{tmp_dir}/model",
+            add_perceptual_loss=add_perceptual_loss,
+            add_experiment_loss_1=add_experiment_loss_1,
+            add_experiment_loss_2=add_experiment_loss_2)
     
     # Generate data
     print("generating data")

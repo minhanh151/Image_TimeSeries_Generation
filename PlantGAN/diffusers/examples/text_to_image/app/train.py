@@ -3,6 +3,9 @@ import sys
 sys.path.append("/wor")
 def train(dataset_path: str, outdir: str, steps: int,
           pretrained_path : str ="stable-diffusion-v1-5/stable-diffusion-v1-5",
+          add_perceptual_loss: bool = False,
+          add_experiment_loss_1: bool = False,
+          add_experiment_loss_2: bool = False,
           ):
     command = [
         "accelerate", "launch",
@@ -26,9 +29,23 @@ def train(dataset_path: str, outdir: str, steps: int,
         "--validation_prompt", "'tomato leaf Mosaic Virus with mottled patterns of light and dark green uneven leaf coloring and a general mosaic-like appearance'",
         "--resume_from_checkpoint", "latest",
         "--seed", "1337"
-
     ]
     # Run the .sh file
+    if add_perceptual_loss:
+        command.append(
+            "--add_perceptual_loss"
+        )
+    
+    if add_experiment_loss_1:
+        command.append(
+            "--add_experiment_loss_1"
+        )
+    
+    if add_experiment_loss_2:
+        command.append(
+             "--add_experiment_loss_2"
+        )
+
     result = subprocess.run(command, capture_output=True, text=True)
 
     # Print the output and errors
