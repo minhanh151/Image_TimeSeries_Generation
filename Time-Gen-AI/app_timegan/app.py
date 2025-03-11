@@ -70,4 +70,8 @@ async def main(
         zipf.write(f'{tmp_dir}/data.npy', arcname=f"sync_data.npy")
     # remove the tmp_dir after send 
     background_tasks.add_task(remove_file, tmp_dir)
-    return FileResponse(output_zip, filename="output.zip")
+    return FileResponse(
+        output_zip, 
+        media_type="application/zip",
+        filename="syntheticdata.zip",
+        headers={"Content-Disposition": "attachment; filename=syntheticdata.zip"})

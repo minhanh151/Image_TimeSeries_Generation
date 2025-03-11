@@ -6,9 +6,11 @@ WORKDIR /app
 # Install dependencies
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git && \
+    apt-get install -y python3-setuptools && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
+RUN pip install setuptools==70.1.0
 RUN python -m pip install --no-cache-dir -r requirements.txt
 RUN pip install fastapi>=0.95.0 uvicorn>=0.21.0 python-multipart
 RUN pip uninstall -y nvidia_cublas_cu11

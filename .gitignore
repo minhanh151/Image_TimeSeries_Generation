@@ -6,3 +6,4 @@ output.zip
 result_0.png 
 test.py
 *.zip
+data/sync_data.npy

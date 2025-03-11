@@ -125,7 +125,7 @@ def main(args, predict_score=True):
   elif args.model == 'ttsgan':
     generated_data = train_ttstgan(gen_net, dis_net, dataset, args.device, logger, args)
   
-
+  
   '''
   with open("{}/hidden".format(root_dir), "wb") as f:
       pickle.dump(h, f)

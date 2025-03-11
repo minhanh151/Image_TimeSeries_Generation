@@ -76,4 +76,8 @@ async def main(
             zipf.write(img_path, arcname=f"result_{idx}.png")
     # remove the tmp_dir after send 
     background_tasks.add_task(remove_file, tmp_dir)
-    return FileResponse(output_zip, filename="syntheticdata.zip")
+    return FileResponse(
+        output_zip, 
+        media_type="application/zip",
+        filename="syntheticdata.zip",
+        headers={"Content-Disposition": "attachment; filename=syntheticdata.zip"})

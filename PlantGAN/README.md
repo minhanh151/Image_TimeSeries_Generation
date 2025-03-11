@@ -49,9 +49,9 @@ curl -X POST "http://localhost:8001/fine-tune-and-generate"      -F "dataset=@st
 
 #### How to run
 ```bash
-cd stylegan2
-docker build . -t stylegan2 
-docker run -p 8001:80 --gpus all stylegan2
+cd cgan
+docker build . -t cgan 
+docker run -p 8001:80 --gpus all cgan
 ```
 
 #### API description
@@ -61,5 +61,5 @@ TODO
 #### Example
 ```
 cd data
-curl -X POST "http://localhost:8001/fine-tune-and-generate"      -F "dataset=@stylegan2_ds.zip"      -F "model_type=stylegan2"
+curl -X POST "http://localhost:8001/fine-tune-and-generate"      -F "dataset=@.zip"      -F "model_type=stylegan2"
 ```
