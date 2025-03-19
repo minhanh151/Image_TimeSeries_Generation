@@ -40,6 +40,15 @@ docker run -p 8005:80 --gpus all rtsgan
 ```
 
 #### API description
+Parameters:
+- model_type
+- dataset
+- sample_len
+- iterations
+- data_name
+- seq_len
+- epochs
+- n_sample
 
 
 #### Example
@@ -80,3 +89,7 @@ docker run -p 8005:80 --gpus all ttsgan
 cd data
 curl --verbose --output test.zip -X POST "http://localhost:8005/fine-tune-and-generate"      -F "dataset=@timeseries_ds.zip"      -F "model_type=ttsgan" -F "epochs=1" -f "iterations=1" 
 ```
+
+
+## Output
+Return a `.zip` file containing generated data which is a `.npy` file in shape of `(num_sample, seq_len, feature_dim)` 
