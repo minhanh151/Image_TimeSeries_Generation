@@ -141,7 +141,7 @@ def loading_RTS_dataset(data_path, data_name, seq_len, return_dict=False):
     # print(P.dim, len(temp_data))
     return dic
   else:
-    return temp_data
+    return temp_data, P
 
 
 class stock_dataset(Dataset):

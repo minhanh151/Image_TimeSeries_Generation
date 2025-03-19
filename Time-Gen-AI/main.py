@@ -46,7 +46,7 @@ def main(args, predict_score=True):
 
   dynamic_processor = None
   static_processor = None
-  ori_data = real_data_loading(args.data_name, args.seq_len)
+  
   
   ## ============ Data loading ========================
   # rtsgan and timegan both use tensorflow while ttsgan and dgan use pytorch
@@ -56,10 +56,13 @@ def main(args, predict_score=True):
     dynamic_processor= dataset["dynamic_processor"]
     static_processor= dataset["static_processor"]
     train_set.set_input("sta","dyn","seq_len")
-  elif args.model == 'timegan' or args.model == 'doppelgan':
+  elif args.model == 'timegan':
+    ori_data = real_data_loading(args.data_name, args.seq_len)
     dataset = ori_data  
+  elif args.model == 'doppelgan':
+    dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
   elif args.model == 'ttsgan':
-    dataset = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
+    dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
     dataset = stock_dataset(dataset)
   
   params=vars(args)
@@ -121,9 +124,10 @@ def main(args, predict_score=True):
     dgan.train_numpy(dataset)
     # dgan.save(f'{root_dir}/model.pth')
     _, generated_data = dgan.generate_numpy(len(ori_data))
-    generated_data = [np.array(data) for data in generated_data]
+    generated_data = [processer.inverse_transform(np.array(data)) for data in generated_data]
   elif args.model == 'ttsgan':
     generated_data = train_ttstgan(gen_net, dis_net, dataset, args.device, logger, args)
+    generated_data = [processer.inverse_transform(data) for data in generated_data]
   
   
   '''
