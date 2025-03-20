@@ -87,7 +87,7 @@ docker run -p 8005:80 --gpus all ttsgan
 #### Example
 ```
 cd data
-curl --verbose --output test.zip -X POST "http://localhost:8005/fine-tune-and-generate"      -F "dataset=@timeseries_ds.zip"      -F "model_type=ttsgan" -F "epochs=1" -f "iterations=1" 
+curl --verbose --output test.zip -X POST "http://localhost:8005/fine-tune-and-generate"      -F "dataset=@timeseries_ds.zip"      -F "model_type=ttsgan" -F "epochs=1" -F "iterations=1" 
 ```
 
 
