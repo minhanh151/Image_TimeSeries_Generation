@@ -6,7 +6,6 @@ from __future__ import print_function
 # import argparse
 from config.config import parse_args
 import numpy as np
-import pandas as pd 
 import torch 
 import warnings
 import random
@@ -61,8 +60,7 @@ def main(args, predict_score=True):
     ori_data = real_data_loading(args.data_name, args.seq_len)
     dataset = ori_data  
   elif args.model == 'doppelgan':
-    # dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
-    dataset = pd.read_csv(f'{args.data_path}/{args.data_name}.csv')
+    dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
   elif args.model == 'ttsgan':
     dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
     dataset = stock_dataset(dataset)
@@ -123,12 +121,10 @@ def main(args, predict_score=True):
   elif args.model == 'timegan':
     generated_data = timegan(dataset, params)
   elif args.model == 'doppelgan':
-    # dgan.train_numpy(dataset)
-    dgan.train_dataframe(dataset)
+    dgan.train_numpy(dataset)
     # dgan.save(f'{root_dir}/model.pth')
-    generated_data = dgan.generate_dataframe(len(ori_data))
-
-    # generated_data = [processer.inverse_transform(np.array(data)) for data in generated_data]
+    _, generated_data = dgan.generate_numpy(len(ori_data))
+    generated_data = [processer.inverse_transform(np.array(data)) for data in generated_data]
   elif args.model == 'ttsgan':
     generated_data = train_ttstgan(gen_net, dis_net, dataset, args.device, logger, args)
     generated_data = [processer.inverse_transform(data) for data in generated_data]
@@ -138,8 +134,6 @@ def main(args, predict_score=True):
   with open("{}/hidden".format(root_dir), "wb") as f:
       pickle.dump(h, f)
   '''
-  if args.model == 'doppelgan':
-    generated_data.to_csv(f'{args.outdir}/data.csv')
   np.save(f'{args.outdir}/data.npy', generated_data, allow_pickle=True)
   
   print('Finish Synthetic Data Generation')
