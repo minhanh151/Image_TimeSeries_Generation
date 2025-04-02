@@ -256,8 +256,8 @@ class AeGAN:
                 dynamics = self.ae.decoder.generate_dynamics(hidden, seq_len)
             res = []
             for i in range(n):
-                #dyn = self.dynamic_processor.inverse_transform(dynamics[i]).values.tolist()
-                dyn = dynamics[i].tolist()
+                dyn = self.dynamic_processor.inverse_transform(dynamics[i]).values.tolist()
+                # dyn = dynamics[i].tolist()
                 res.append(dyn)
             return res
 
