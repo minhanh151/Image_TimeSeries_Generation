@@ -1,5 +1,6 @@
 torch==1.13.1
-numpy>=1.17.2
+torchvision
+numpy>=1.17.2,<2.0.0
 tensorflow==2.10.0
 tqdm>=4.36.1
 argparse>=1.1
@@ -13,4 +14,5 @@ imageio
 tf-slim
 tensorflow-addons
 opencv-python
-git+https://github.com/gretelai/gretel-synthetics.git@v0.22.16
+git+https://github.com/gretelai/gretel-synthetics.git
+streamlit

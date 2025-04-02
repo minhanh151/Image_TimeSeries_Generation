@@ -9,7 +9,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN python -m pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install fastapi>=0.95.0 uvicorn>=0.21.0 python-multipart
 RUN pip uninstall -y nvidia_cublas_cu11
 # Copy code

@@ -9,11 +9,11 @@ def train(dataset_path: str, data_name: str, seq_len: int, sample_len: int,
         "--model", "doppelgan",
         "--data_path", dataset_path,
         "--data_name", data_name,
-        "--seq_len", str(seq_len),
+        "--seq_len", str(seq_len), # It determines the length of a shifting window to predict the next value in the sequence.
         "--rts_epoch", str(epochs), 
         "--batch_size", str(batch_size),
-        "--n_samples", str(n_samples),
-        "--sample_len", str(sample_len),
+        "--n_samples", str(n_samples), # Number of rows to generate/infer.
+        "--sample_len", str(sample_len), # Number of attributes, i.e. number of columns.
         "--outdir", outdir,
     ]
     # Run the .sh file

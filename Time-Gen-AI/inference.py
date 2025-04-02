@@ -8,6 +8,7 @@ from config.config import parse_args
 from models.missingprocessor import Processor
 import numpy as np 
 import torch
+import os
 # ==================TimeGAN ================================
 from models.timegan import timegan
 
@@ -79,7 +80,7 @@ if __name__ == '__main__':
         epochs=10
         )
         dgan = DGAN(config) 
-        dgan = dgan.load(args.model_path)
+        dgan = dgan.load(os.path.join(args.model_path, "dgan.pth"))
         _, generated_data = dgan.generate_numpy(args.n_samples)
         generated_data = [np.array(data) for data in generated_data] 
     elif args.model == 'ttsgan':
@@ -91,17 +92,19 @@ if __name__ == '__main__':
             num_classes=1, 
             latent_dim=args.tts_latent_dim, 
         )
-        checkpoint = torch.load(args.model_path, map_location='cuda:{}'.format(args.device))
+        checkpoint = torch.load(os.path.join(args.model_path, "tts_ckpt.pth"), map_location='cuda:0'.format(args.device))
         gen_net.load_state_dict(checkpoint['gen_state_dict'])
-        gen_net.to('cuda:{}'.format(args.device))
+        gen_net.to('cuda:0'.format(args.device))
 
         generated_data = [] 
 
         for i in range(args.n_samples):
-            fake_noise = torch.FloatTensor(np.random.normal(0, 1, (1, 100))).to('cuda:{}'.format(args.device))
+            fake_noise = torch.FloatTensor(np.random.normal(0, 1, (1, 100))).to('cuda:0'.format(args.device))
             fake_sigs = gen_net(fake_noise).to('cpu').detach().numpy()
             fake_sigs = fake_sigs.squeeze().transpose(1,0)
             # print(fake_sigs.shape)
             generated_data.append(fake_sigs)
         
     print(generated_data)
+
+    np.save(os.path.join(args.outdir, "output.npy"), generated_data)
