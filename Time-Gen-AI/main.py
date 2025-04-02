@@ -123,17 +123,13 @@ def main(args, predict_score=True):
   elif args.model == 'timegan':
     generated_data = timegan(dataset, params)
   elif args.model == 'doppelgan':
-    # dgan.train_numpy(dataset)
     dgan.train_dataframe(dataset)
-    # dgan.save(f'{root_dir}/model.pth')
     generated_data = dgan.generate_dataframe(len(ori_data))
-
-    # generated_data = [processer.inverse_transform(np.array(data)) for data in generated_data]
   elif args.model == 'ttsgan':
     generated_data = train_ttstgan(gen_net, dis_net, dataset, args.device, logger, args)
     generated_data = [processer.inverse_transform(data) for data in generated_data]
   
-  
+
   '''
   with open("{}/hidden".format(root_dir), "wb") as f:
       pickle.dump(h, f)
@@ -173,7 +169,7 @@ def main(args, predict_score=True):
   else:
     metric_results = None
 
-  return ori_data, generated_data, metric_results
+  return dataset, generated_data, metric_results
 
 
 if __name__ == '__main__':  

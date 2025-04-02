@@ -1,5 +1,7 @@
 # Dockerfile
-FROM nvcr.io/nvidia/pytorch:25.01-py3
+# FROM nvcr.io/nvidia/pytorch:25.01-py3
+# Using obsolete version because newer versions stopped Pascal GPUs support.
+FROM nvcr.io/nvidia/pytorch:23.05-py3
 
 WORKDIR /app
 
