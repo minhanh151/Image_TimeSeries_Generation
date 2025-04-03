@@ -62,7 +62,7 @@ def main(args, predict_score=True):
     dataset = ori_data  
   elif args.model == 'doppelgan':
     # dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
-    dataset = pd.read_csv(f'{args.data_path}/{args.data_name}.csv')
+    dataset = pd.read_csv(f'{args.data_path}/{args.data_name}_data.csv')
   elif args.model == 'ttsgan':
     dataset, processer = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
     dataset = stock_dataset(dataset)
@@ -123,11 +123,12 @@ def main(args, predict_score=True):
   elif args.model == 'timegan':
     generated_data = timegan(dataset, params)
   elif args.model == 'doppelgan':
-    dgan.train_dataframe(dataset)
-    generated_data = dgan.generate_dataframe(len(ori_data))
+    dgan.train_dataframe(dataset, df_style="long")
+    generated_data = dgan.generate_dataframe(n = len(dataset))
+    dgan.save(f'{args.model_path}/dgan_df.pth')
   elif args.model == 'ttsgan':
     generated_data = train_ttstgan(gen_net, dis_net, dataset, args.device, logger, args)
-    generated_data = [processer.inverse_transform(data) for data in generated_data]
+    generated_data = [processor.inverse_transform(data) for data in generated_data]
   
 
   '''

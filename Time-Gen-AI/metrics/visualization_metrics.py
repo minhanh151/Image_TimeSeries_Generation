@@ -38,10 +38,13 @@ def visualization (ori_data, generated_data, analysis):
   # Data preprocessing
   ori_data = np.asarray(ori_data)
   generated_data = np.asarray(generated_data)  
-  
+
   ori_data = ori_data[idx]
   generated_data = generated_data[idx]
-  
+
+  if len(ori_data.shape) == 2:
+    ori_data = np.expand_dims(ori_data, axis = 0)
+    generated_data = np.expand_dims(generated_data, axis = 0)
   no, seq_len, dim = ori_data.shape  
   
   for i in range(anal_sample_no):
@@ -75,7 +78,9 @@ def visualization (ori_data, generated_data, analysis):
     plt.title('PCA plot')
     plt.xlabel('x-pca')
     plt.ylabel('y_pca')
-    plt.show()
+    # plt.show()
+    plt.savefig('stock_result/pca_plot.png')
+
     
   elif analysis == 'tsne':
     
@@ -99,4 +104,5 @@ def visualization (ori_data, generated_data, analysis):
     plt.title('t-SNE plot')
     plt.xlabel('x-tsne')
     plt.ylabel('y_tsne')
-    plt.show()    
+    # plt.show()    
+    plt.savefig('stock_result/tsne_plot.png')

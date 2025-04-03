@@ -2,7 +2,8 @@ import os
 import subprocess
 import numpy as np
 import streamlit as st
-
+import pandas as pd
+from PIL import Image
 
 def infer(
     model : str,
@@ -52,6 +53,7 @@ st.title("Timeseries Generation Tool")
 model_type: str = st.selectbox(
     "Select model", ("timegan", "rtsgan", "doppelgan", "ttsgan")
 )
+n_samples: int = st.number_input("Number of samples", min_value=2)
 
 model_path : str = "weights"
 data_path  : str = "data"
@@ -62,7 +64,7 @@ hidden_dim : int = 34
 num_layer  : int = 3
 iteration  : int = 5
 batch_size : int = 128
-n_samples  : int = 1
+# n_samples  : int = 1
 
 if st.button("Infer"):
     infer(
@@ -76,7 +78,15 @@ if st.button("Infer"):
         num_layer,
         iteration,
         batch_size,
-        "temp_results",
+        "stock_result",
         n_samples,
     )
-    st.write(np.load(os.path.join("temp_results", "output.npy")))
+    # if model_type == "doppelgan":
+    st.write(pd.read_csv(os.path.join("stock_result", "data.csv")))
+    # else:
+    #     st.write(np.load(os.path.join("stock_result", "output.npy")))
+    
+    
+    st.image(Image.open(os.path.join("stock_result", "pca_plot.png")), caption="PCA Plot")
+    if n_samples > 40:
+        st.image(Image.open(os.path.join("stock_result", "tsne_plot.png")), caption="t-SNE Plot")
