@@ -20,10 +20,62 @@ Note: Use original data as training set to generater synthetic data (time-series
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 import numpy as np
+import os
+import pickle
 from utils import extract_time, rnn_cell, random_generator, batch_generator
 from tf_slim.layers import layers as _layers
 
-def timegan (ori_data, parameters):
+def save_model(sess, saver, model_dir, model_name, global_step=None):
+  """Save model.
+  
+  Args:
+    - sess: tensorflow session
+    - saver: tensorflow saver
+    - model_dir: directory to save the model
+    - model_name: name of the model
+    - global_step: global step for checkpoint (optional)
+  """
+  if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+    
+  model_path = os.path.join(model_dir, model_name)
+  saver.save(sess, model_path, global_step=global_step)
+  print(f"Model saved to {model_path}")
+  
+  return model_path
+
+def save_model_params(model_dir, params):
+  """Save model parameters.
+  
+  Args:
+    - model_dir: directory to save the parameters
+    - params: dictionary of parameters to save
+  """
+  if not os.path.exists(model_dir):
+    os.makedirs(model_dir)
+    
+  params_path = os.path.join(model_dir, 'model_params.pkl')
+  with open(params_path, 'wb') as f:
+    pickle.dump(params, f)
+  print(f"Model parameters saved to {params_path}")
+  
+  return params_path
+
+def load_model_params(model_dir):
+  """Load model parameters.
+  
+  Args:
+    - model_dir: directory where parameters are saved
+    
+  Returns:
+    - params: loaded parameters
+  """
+  params_path = os.path.join(model_dir, 'model_params.pkl')
+  with open(params_path, 'rb') as f:
+    params = pickle.load(f)
+  return params
+
+def timegan(ori_data, parameters, model_dir=None, load_model=False):
   """TimeGAN function.
   
   Use original data as training set to generater synthetic data (time-series)
@@ -31,6 +83,8 @@ def timegan (ori_data, parameters):
   Args:
     - ori_data: original time-series data
     - parameters: TimeGAN network parameters
+    - model_dir: directory to save or load the model (default: None)
+    - load_model: whether to load an existing model (default: False)
     
   Returns:
     - generated_data: generated time-series data
@@ -65,6 +119,23 @@ def timegan (ori_data, parameters):
   
   # Normalization
   ori_data, min_val, max_val = MinMaxScaler(ori_data)
+  
+  # Save normalization parameters for future use
+  if model_dir is not None and not load_model:
+    norm_params = {'min_val': min_val, 'max_val': max_val}
+    norm_params_path = os.path.join(model_dir, 'norm_params.pkl')
+    if not os.path.exists(model_dir):
+      os.makedirs(model_dir)
+    with open(norm_params_path, 'wb') as f:
+      pickle.dump(norm_params, f)
+  
+  # Load normalization parameters if loading model
+  if model_dir is not None and load_model:
+    norm_params_path = os.path.join(model_dir, 'norm_params.pkl')
+    with open(norm_params_path, 'rb') as f:
+      norm_params = pickle.load(f)
+    min_val = norm_params['min_val']
+    max_val = norm_params['max_val']
               
   ## Build a RNN networks          
   
@@ -220,80 +291,114 @@ def timegan (ori_data, parameters):
   D_solver = tf.compat.v1.train.AdamOptimizer().minimize(D_loss, var_list = d_vars)
   G_solver = tf.compat.v1.train.AdamOptimizer().minimize(G_loss, var_list = g_vars + s_vars)      
   GS_solver = tf.compat.v1.train.AdamOptimizer().minimize(G_loss_S, var_list = g_vars + s_vars)   
-        
-  ## TimeGAN training   
-  sess = tf.compat.v1.Session()
-  sess.run(tf.compat.v1.global_variables_initializer())
-    
-  # 1. Embedding network training
-  print('Start Embedding Network Training')
-    
-  for itt in range(iterations):
-    # Set mini-batch
-    X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)           
-    # Train embedder        
-    _, step_e_loss = sess.run([E0_solver, E_loss_T0], feed_dict={X: X_mb, T: T_mb})        
-    # Checkpoint
-    if itt % 1000 == 0:
-      print('step: '+ str(itt) + '/' + str(iterations) + ', e_loss: ' + str(np.round(np.sqrt(step_e_loss),4)) ) 
-      
-  print('Finish Embedding Network Training')
-    
-  # 2. Training only with supervised loss
-  print('Start Training with Supervised Loss Only')
-    
-  for itt in range(iterations):
-    # Set mini-batch
-    X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)    
-    # Random vector generation   
-    Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
-    # Train generator       
-    _, step_g_loss_s = sess.run([GS_solver, G_loss_S], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})       
-    # Checkpoint
-    if itt % 1000 == 0:
-      print('step: '+ str(itt)  + '/' + str(iterations) +', s_loss: ' + str(np.round(np.sqrt(step_g_loss_s),4)) )
-      
-  print('Finish Training with Supervised Loss Only')
-    
-  # 3. Joint Training
-  print('Start Joint Training')
   
-  for itt in range(iterations):
-    # Generator training (twice more than discriminator training)
-    for kk in range(2):
+  # Create saver
+  saver = tf.compat.v1.train.Saver()
+        
+  ## TimeGAN training or loading   
+  sess = tf.compat.v1.Session()
+  
+  # Load model if specified
+  if load_model and model_dir is not None:
+    ckpt = tf.train.get_checkpoint_state(model_dir)
+    if ckpt and ckpt.model_checkpoint_path:
+      saver.restore(sess, ckpt.model_checkpoint_path)
+      print(f"Model restored from {ckpt.model_checkpoint_path}")
+    else:
+      print("No checkpoint found in the model directory. Starting from scratch.")
+      sess.run(tf.compat.v1.global_variables_initializer())
+  else:
+    sess.run(tf.compat.v1.global_variables_initializer())
+    
+  # If not loading model, train the model
+  if not load_model:
+    # 1. Embedding network training
+    print('Start Embedding Network Training')
+      
+    for itt in range(iterations):
       # Set mini-batch
-      X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)               
+      X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)           
+      # Train embedder        
+      _, step_e_loss = sess.run([E0_solver, E_loss_T0], feed_dict={X: X_mb, T: T_mb})        
+      # Checkpoint
+      if itt % 1000 == 0:
+        print('step: '+ str(itt) + '/' + str(iterations) + ', e_loss: ' + str(np.round(np.sqrt(step_e_loss),4)) ) 
+        
+    print('Finish Embedding Network Training')
+      
+    # 2. Training only with supervised loss
+    print('Start Training with Supervised Loss Only')
+      
+    for itt in range(iterations):
+      # Set mini-batch
+      X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)    
+      # Random vector generation   
+      Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
+      # Train generator       
+      _, step_g_loss_s = sess.run([GS_solver, G_loss_S], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})       
+      # Checkpoint
+      if itt % 1000 == 0:
+        print('step: '+ str(itt)  + '/' + str(iterations) +', s_loss: ' + str(np.round(np.sqrt(step_g_loss_s),4)) )
+        
+    print('Finish Training with Supervised Loss Only')
+      
+    # 3. Joint Training
+    print('Start Joint Training')
+    
+    for itt in range(iterations):
+      # Generator training (twice more than discriminator training)
+      for kk in range(2):
+        # Set mini-batch
+        X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)               
+        # Random vector generation
+        Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
+        # Train generator
+        _, step_g_loss_u, step_g_loss_s, step_g_loss_v = sess.run([G_solver, G_loss_U, G_loss_S, G_loss_V], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})
+         # Train embedder        
+        _, step_e_loss_t0 = sess.run([E_solver, E_loss_T0], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})   
+             
+      # Discriminator training        
+      # Set mini-batch
+      X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)           
       # Random vector generation
       Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
-      # Train generator
-      _, step_g_loss_u, step_g_loss_s, step_g_loss_v = sess.run([G_solver, G_loss_U, G_loss_S, G_loss_V], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})
-       # Train embedder        
-      _, step_e_loss_t0 = sess.run([E_solver, E_loss_T0], feed_dict={Z: Z_mb, X: X_mb, T: T_mb})   
-           
-    # Discriminator training        
-    # Set mini-batch
-    X_mb, T_mb = batch_generator(ori_data, ori_time, batch_size)           
-    # Random vector generation
-    Z_mb = random_generator(batch_size, z_dim, T_mb, max_seq_len)
-    # Check discriminator loss before updating
-    check_d_loss = sess.run(D_loss, feed_dict={X: X_mb, T: T_mb, Z: Z_mb})
-    # Train discriminator (only when the discriminator does not work well)
-    if (check_d_loss > 0.15):        
-      _, step_d_loss = sess.run([D_solver, D_loss], feed_dict={X: X_mb, T: T_mb, Z: Z_mb})
-        
-    # Print multiple checkpoints
-    if itt % 1000 == 0:
-      print('step: '+ str(itt) + '/' + str(iterations) + 
-            ', d_loss: ' + str(np.round(step_d_loss,4)) + 
-            ', g_loss_u: ' + str(np.round(step_g_loss_u,4)) + 
-            ', g_loss_s: ' + str(np.round(np.sqrt(step_g_loss_s),4)) + 
-            ', g_loss_v: ' + str(np.round(step_g_loss_v,4)) + 
-            ', e_loss_t0: ' + str(np.round(np.sqrt(step_e_loss_t0),4))  )
-  print('Finish Joint Training')
+      # Check discriminator loss before updating
+      check_d_loss = sess.run(D_loss, feed_dict={X: X_mb, T: T_mb, Z: Z_mb})
+      # Train discriminator (only when the discriminator does not work well)
+      if (check_d_loss > 0.15):        
+        _, step_d_loss = sess.run([D_solver, D_loss], feed_dict={X: X_mb, T: T_mb, Z: Z_mb})
+      else:
+        step_d_loss = check_d_loss
+          
+      # Print multiple checkpoints
+      if itt % 1000 == 0:
+        print('step: '+ str(itt) + '/' + str(iterations) + 
+              ', d_loss: ' + str(np.round(step_d_loss,4)) + 
+              ', g_loss_u: ' + str(np.round(step_g_loss_u,4)) + 
+              ', g_loss_s: ' + str(np.round(np.sqrt(step_g_loss_s),4)) + 
+              ', g_loss_v: ' + str(np.round(step_g_loss_v,4)) + 
+              ', e_loss_t0: ' + str(np.round(np.sqrt(step_e_loss_t0),4))  )
+    print('Finish Joint Training')
+    
+    # Save model
+    if model_dir is not None:
+      # Save the model
+      save_model(sess, saver, model_dir, 'timegan_model')
+      
+      # Save the model parameters
+      model_params = {
+        'hidden_dim': hidden_dim,
+        'num_layers': num_layers,
+        'module_name': module_name,
+        'z_dim': z_dim,
+        'max_seq_len': max_seq_len,
+        'dim': dim
+      }
+      save_model_params(model_dir, model_params)
     
   ## Synthetic data generation
   Z_mb = random_generator(no, z_dim, ori_time, max_seq_len)
-  generated_data_curr = sess.run(X_hat, feed_dict={Z: Z_mb, X: ori_data, T: ori_time})    
+  generated_data_curr = sess.run(X_hat, feed_dict={Z: Z_mb, T: ori_time})    
     
   generated_data = list()
     
@@ -305,4 +410,40 @@ def timegan (ori_data, parameters):
   generated_data = generated_data * max_val
   generated_data = generated_data + min_val
     
+  # Close the session
+  sess.close()
+    
+  return generated_data
+
+def load_timegan_for_inference(model_dir, ori_time, no_samples):
+  """Load TimeGAN model for inference.
+  
+  Args:
+    - model_dir: directory where the model is saved
+    - ori_time: original time information
+    - no_samples: number of samples to generate
+    
+  Returns:
+    - generated_data: generated time-series data
+  """
+  # Load model parameters
+  params = load_model_params(model_dir)
+  
+  # Load normalization parameters
+  norm_params_path = os.path.join(model_dir, 'norm_params.pkl')
+  with open(norm_params_path, 'rb') as f:
+    norm_params = pickle.load(f)
+  min_val = norm_params['min_val']
+  max_val = norm_params['max_val']
+  
+  # Create dummy data with correct dimensions for model loading
+  max_seq_len = params['max_seq_len']
+  dim = params['dim']
+  
+  # Create dummy data with the same dimensions as the original data
+  dummy_data = np.zeros((no_samples, max_seq_len, dim))
+  
+  # Load the model and generate data
+  generated_data = timegan(dummy_data, params, model_dir=model_dir, load_model=True)
+  
   return generated_data
