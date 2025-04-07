@@ -90,11 +90,21 @@ def main(args, predict_score=True):
     params['num_layer'] = args.timegan_num_layer 
   elif args.model == 'doppelgan':
     config = DGANConfig(
-     max_sequence_len=args.seq_len,
-     sample_len=args.sample_len,
-     batch_size=args.batch_size,
-     epochs=args.epochs
-    )
+    max_sequence_len=args.seq_len,
+    sample_len=args.sample_len,
+    batch_size=args.batch_size,
+    feature_noise_dim=32,
+    feature_num_layers=1,
+    feature_num_units=100,
+    apply_feature_scaling=True,
+    generator_learning_rate=1e-5,
+    discriminator_learning_rate=1e-5,
+    attribute_discriminator_learning_rate=1e-5,
+    apply_example_scaling=False,
+    attribute_loss_coef=10,
+    epochs=args.epochs  # This was duplicated, keeping the one using args
+)
+
     dgan = DGAN(config)    
   elif args.model == 'ttsgan':
     # import network
