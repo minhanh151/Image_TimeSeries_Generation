@@ -41,7 +41,7 @@ def visualization (ori_data, generated_data, analysis):
 
   ori_data = ori_data[idx]
   generated_data = generated_data[idx]
-
+  print(ori_data.shape, generated_data.shape)
   if len(ori_data.shape) == 2:
     ori_data = np.expand_dims(ori_data, axis = 0)
     generated_data = np.expand_dims(generated_data, axis = 0)

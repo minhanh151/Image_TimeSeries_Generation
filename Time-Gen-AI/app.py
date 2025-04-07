@@ -18,6 +18,7 @@ def infer(
     batch_size: int,
     outdir: str,
     n_samples: int,
+    sample_len: int,
 ):
     command = [
         "python", "inference.py",
@@ -32,6 +33,7 @@ def infer(
         "--iteration", str(iteration), 
         "--batch_size", str(batch_size),
         "--n_samples", str(n_samples),
+        "--sample_len", str(sample_len),
         "--outdir", outdir,
     ]
     # Run the .sh file
@@ -58,12 +60,13 @@ n_samples: int = st.number_input("Number of samples", min_value=2)
 model_path : str = "weights"
 data_path  : str = "data"
 data_name  : str = "stock"
-seq_len    : int = 24
+seq_len    : int = 365
 module     : str = "gru"
 hidden_dim : int = 34
 num_layer  : int = 3
 iteration  : int = 5
 batch_size : int = 128
+sample_len : int = 5
 # n_samples  : int = 1
 
 if st.button("Infer"):
@@ -80,6 +83,7 @@ if st.button("Infer"):
         batch_size,
         "stock_result",
         n_samples,
+        sample_len
     )
     # if model_type == "doppelgan":
     st.write(pd.read_csv(os.path.join("stock_result", "data.csv")))
@@ -87,6 +91,7 @@ if st.button("Infer"):
     #     st.write(np.load(os.path.join("stock_result", "output.npy")))
     
     
-    st.image(Image.open(os.path.join("stock_result", "pca_plot.png")), caption="PCA Plot")
+   
     if n_samples > 40:
+        st.image(Image.open(os.path.join("stock_result", "pca_plot.png")), caption="PCA Plot")
         st.image(Image.open(os.path.join("stock_result", "tsne_plot.png")), caption="t-SNE Plot")

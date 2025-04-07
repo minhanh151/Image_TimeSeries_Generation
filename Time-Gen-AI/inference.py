@@ -114,7 +114,8 @@ def generate_doppelgan_samples(args) -> List[np.ndarray]:
     dgan = DGAN(config)
     dgan = dgan.load(os.path.join(args.model_path, "dgan_df.pth"))
     generated_data_csv = dgan.generate_dataframe(args.n_samples)
-    return create_list_of_row_arrays(generated_data_csv)
+    # return 
+    return create_list_of_row_arrays(generated_data_csv, args.seq_len), generated_data_csv
 
 def generate_ttsgan_samples(processor, args) -> List[np.ndarray]:
     """Generates samples using TTSGAN model."""
@@ -161,23 +162,22 @@ def main():
             })
             generated_data = timegan(ori_data, params)
         else:
-            generated_data = generate_doppelgan_samples(args)
+            generated_data, generated_data_csv = generate_doppelgan_samples(args)
     elif args.model == 'ttsgan':
         dataset, processor = loading_RTS_dataset(args.data_path, args.data_name, args.seq_len)
         dataset = stock_dataset(dataset)
         generated_data = generate_ttsgan_samples(processor, args)
     
     # Save generated data
-    if args.model == 'doppelgan':
-        generated_data_csv = pd.DataFrame(generated_data)
-    else:
+    if args.model != 'doppelgan':
         generated_data_csv = numpy_to_dataframe(np.array(generated_data), STOCK_COLUMNS)
     
     generated_data_csv.to_csv(f'{args.outdir}/data.csv', index=False)
     
     # Visualize results
-    visualization(ori_data[:args.n_samples], generated_data, 'pca')
+    
     if args.n_samples > 40:
+        visualization(ori_data[:args.n_samples], generated_data, 'pca')
         visualization(ori_data[:args.n_samples], generated_data, 'tsne')
 
 if __name__ == '__main__':
